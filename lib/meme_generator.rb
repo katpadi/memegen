@@ -28,6 +28,7 @@ class MemeGenerator
     def generate(path, top, bottom)
       top = (top || '')
       bottom = (bottom || '')
+      bottom = '' #no bottom support
 
       canvas = Magick::ImageList.new(path)
       image = canvas.first
@@ -40,12 +41,18 @@ class MemeGenerator
       stroke_width = pointsize / 30.0
       x_position = image.columns / 2
       y_position = image.rows * 0.15
+      p "IMAGE ROWS #{image.rows}"
+      p "#{y_position}"
 
       # Draw top
       unless top.empty?
-        scale, text = scale_text(top)
+        scale, text, to_center = scale_text(top)
+        if to_center == true
+          y_position = image.rows * 0.40
+          p "#{y_position}"
+        end
         bottom_draw = draw.dup
-        bottom_draw.annotate(canvas, 0, 0, 0, 0, text) do
+        bottom_draw.annotate(canvas, 0, 0, 0, y_position, text) do
           self.interline_spacing = -(pointsize / 11)
           self.stroke_antialias(true)
           self.stroke = "black"
@@ -84,20 +91,23 @@ class MemeGenerator
 
     def scale_text(text)
       text = text.dup
-
+      to_center = false
       if text.length < 10
         scale = 1.0
-        p "1"
+        to_center = true
       elsif text.length >= 10 and text.length < 30
+        text = word_wrap(text, 12)
+        scale = 0.50
+        to_center = true
+        p "dito"
+      elsif text.length >= 30 and text.length < 40
         text = word_wrap(text, 18)
-        scale = 0.60
-        p "50"
+        scale = 0.40
       else
         text = word_wrap(text, 13)
-        scale = 0.50
-        p "35"
+        scale = 0.35
       end
-      [scale, text.strip]
+      [scale, text.strip, to_center]
     end
   end
 end
