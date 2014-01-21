@@ -16,7 +16,7 @@ class MemeGenerator
     #   the short names for the memes and the values are paths to the meme
     #   image on disk.
     def meme_paths
-      local_image_path = File.expand_path("~/.memegen")
+      local_image_path = File.expand_path("~/Playground/rails_playpen/.memegen")
       base = File.join(File.dirname(__FILE__), "..", "generators")
       files = Dir.glob(["#{base}/*", "#{local_image_path}/*.*"])
       files.inject({}) do |images,path|
@@ -26,15 +26,15 @@ class MemeGenerator
     end
 
     def generate(path, top, bottom)
-      top = (top || '').upcase
-      bottom = (bottom || '').upcase
+      top = (top || '')
+      bottom = (bottom || '')
 
       canvas = Magick::ImageList.new(path)
       image = canvas.first
 
       draw = Magick::Draw.new
-      draw.font = File.join(File.dirname(__FILE__), "..", "fonts", "Impact.ttf")
-      draw.font_weight = Magick::BoldWeight
+      draw.font = File.join(File.dirname(__FILE__), "..", "fonts", "Lucida Grande.ttf")
+      draw.font_weight = Magick::NormalWeight
 
       pointsize = image.columns / 5.0
       stroke_width = pointsize / 30.0
@@ -46,10 +46,10 @@ class MemeGenerator
         scale, text = scale_text(top)
         bottom_draw = draw.dup
         bottom_draw.annotate(canvas, 0, 0, 0, 0, text) do
-          self.interline_spacing = -(pointsize / 5)
+          self.interline_spacing = -(pointsize / 11)
           self.stroke_antialias(true)
           self.stroke = "black"
-          self.fill = "white"
+          #self.fill = "white"
           self.gravity = Magick::NorthGravity
           self.stroke_width = stroke_width * scale
           self.pointsize = pointsize * scale
@@ -61,10 +61,10 @@ class MemeGenerator
         scale, text = scale_text(bottom)
         bottom_draw = draw.dup
         bottom_draw.annotate(canvas, 0, 0, 0, 0, text) do
-          self.interline_spacing = -(pointsize / 5)
+          self.interline_spacing = -(pointsize / 11)
           self.stroke_antialias(true)
           self.stroke = "black"
-          self.fill = "white"
+          #self.fill = "white"
           self.gravity = Magick::SouthGravity
           self.stroke_width = stroke_width * scale
           self.pointsize = pointsize * scale
@@ -84,14 +84,18 @@ class MemeGenerator
 
     def scale_text(text)
       text = text.dup
+
       if text.length < 10
         scale = 1.0
-      elsif text.length < 24
-        text = word_wrap(text, 10)
-        scale = 0.70
-      else
+        p "1"
+      elsif text.length >= 10 and text.length < 30
         text = word_wrap(text, 18)
-        scale = 0.5
+        scale = 0.60
+        p "50"
+      else
+        text = word_wrap(text, 13)
+        scale = 0.50
+        p "35"
       end
       [scale, text.strip]
     end
